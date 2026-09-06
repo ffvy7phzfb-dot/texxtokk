@@ -1,0 +1,2021 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>ТекстОК — проверка русского текста</title>
+
+<style>
+/* =========================================================
+   БАЗОВЫЕ СТИЛИ
+   ========================================================= */
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#20222b;
+  background:
+    radial-gradient(circle at 0 0,#e8e5ff,transparent 35%),
+    radial-gradient(circle at 100% 100%,#ddf7ef,transparent 35%),
+    #f5f6fa;
+  transition:background 0.3s,color 0.3s;
+}
+
+/* =========================================================
+   ТЁМНАЯ ТЕМА
+   ========================================================= */
+
+body.dark-mode{
+  color:#e8e8e8;
+  background:#1a1a2e;
+}
+
+body.dark-mode .card{
+  background:rgba(30,30,50,.95);
+  border-color:#3a3a5a;
+}
+
+body.dark-mode .stat{
+  background:#2a2a4a;
+  color:#a0a0b0;
+}
+
+body.dark-mode .stat b{
+  color:#e0e0f0;
+}
+
+body.dark-mode .status{
+  background:#2a2a4a;
+  color:#a0a0b0;
+}
+
+body.dark-mode .editor-box{
+  background:#1e1e3a;
+  border-color:#3a3a5a;
+}
+
+body.dark-mode .editor-box .label{
+  background:rgba(20,20,40,.9);
+  color:#a0a0b0;
+}
+
+body.dark-mode textarea{
+  background:transparent;
+  color:#e8e8e8;
+}
+
+body.dark-mode #fixedText{
+  background:#1e1e3a;
+  color:#e8e8e8;
+}
+
+body.dark-mode .empty{
+  color:#a0a0b0;
+}
+
+body.dark-mode .issue{
+  background:#2a2a4a;
+  border-color:#3a3a5a;
+}
+
+body.dark-mode .issue-title{
+  color:#e8e8e8;
+}
+
+body.dark-mode .issue-text{
+  color:#a0a0b0;
+}
+
+body.dark-mode .fix{
+  background:#3a3a6a;
+  color:#b0b0f0;
+}
+
+body.dark-mode .fix:hover{
+  background:#4a4a8a;
+}
+
+body.dark-mode .light{
+  background:#2a2a4a;
+  color:#b0b0d0;
+}
+
+body.dark-mode .light:hover{
+  background:#3a3a6a;
+}
+
+body.dark-mode .secondary{
+  background:#3a3a6a;
+  color:#b0b0f0;
+}
+
+body.dark-mode .secondary:hover{
+  background:#4a4a8a;
+}
+
+body.dark-mode .badge{
+  background:#3a2a2a;
+  color:#ff6b6b;
+}
+
+body.dark-mode .badge.zero{
+  background:#2a3a2a;
+  color:#6bff6b;
+}
+
+body.dark-mode .results-head h2{
+  color:#e8e8e8;
+}
+
+body.dark-mode .suggestions button{
+  background:#2a2a4a;
+  border-color:#3a3a5a;
+  color:#e0e0f0;
+}
+
+body.dark-mode .suggestions button:hover{
+  background:#3a3a6a;
+  border-color:#655cf5;
+}
+
+body.dark-mode .text-wrapper{
+  background:#1e1e3a;
+}
+
+body.dark-mode .editor-box:focus-within{
+  border-color:#655cf5;
+}
+
+body.dark-mode .logo span{
+  background:#655cf5;
+}
+
+body.dark-mode .subtitle{
+  color:#a0a0b0;
+}
+
+body.dark-mode .history-box{
+  background:#1e1e3a;
+  border-color:#3a3a5a;
+}
+
+body.dark-mode .history-item{
+  background:#2a2a4a;
+  border-color:#3a3a5a;
+  color:#d0d0e0;
+}
+
+body.dark-mode .history-item:hover{
+  background:#3a3a6a;
+  border-color:#655cf5;
+}
+
+body.dark-mode .history-item.active{
+  border-color:#655cf5;
+  background:#3a3a6a;
+}
+
+body.dark-mode .history-item .time{
+  color:#8888a0;
+}
+
+/* =========================================================
+   ОСНОВНЫЕ СТИЛИ
+   ========================================================= */
+
+.container{
+  width:min(1200px,calc(100% - 30px));
+  margin:auto;
+  padding:35px 0 60px;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:28px;
+  flex-wrap:wrap;
+  gap:15px;
+}
+
+.logo{
+  font-size:42px;
+  font-weight:850;
+  letter-spacing:-1.5px;
+}
+
+.logo span{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  height:48px;
+  margin-right:8px;
+  border-radius:15px;
+  background:#655cf5;
+  color:white;
+}
+
+.subtitle{
+  color:#777b86;
+  margin-top:5px;
+  font-size:16px;
+}
+
+.header-controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.theme-toggle{
+  background:#f0f1f5;
+  border:0;
+  border-radius:50%;
+  width:44px;
+  height:44px;
+  font-size:20px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.theme-toggle:hover{
+  transform:rotate(20deg);
+  box-shadow:0 4px 12px #00000020;
+}
+
+body.dark-mode .theme-toggle{
+  background:#2a2a4a;
+  color:#f0d050;
+}
+
+.card{
+  background:rgba(255,255,255,.94);
+  border:1px solid #e7e7ec;
+  border-radius:24px;
+  padding:22px;
+  margin-top:20px;
+  box-shadow:0 18px 50px #22223810;
+  transition:all 0.3s;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+button{
+  border:0;
+  border-radius:12px;
+  padding:12px 17px;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px #00000020;
+}
+
+button:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none !important;
+}
+
+.primary{
+  background:#655cf5;
+  color:#fff;
+}
+
+.secondary{
+  background:#eceaff;
+  color:#5148d8;
+}
+
+.light{
+  background:#f0f1f5;
+  color:#555a68;
+}
+
+.danger{
+  background:#ff1744;
+  color:#fff;
+}
+
+.danger:hover{
+  background:#d50000;
+}
+
+.editor-wrapper{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  margin-top:15px;
+}
+
+.editor-box{
+  position:relative;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid #dedfe5;
+  background:#fbfbfd;
+  transition:all 0.3s;
+}
+
+.editor-box:focus-within{
+  border-color:#655cf5;
+  box-shadow:0 0 0 4px #655cf515;
+}
+
+.editor-box .label{
+  position:absolute;
+  top:8px;
+  right:12px;
+  font-size:11px;
+  font-weight:700;
+  color:#777b86;
+  background:rgba(255,255,255,.9);
+  padding:4px 12px;
+  border-radius:20px;
+  z-index:10;
+  pointer-events:none;
+}
+
+.editor-box .label.error{
+  color:#d73d3d;
+  background:#ffebee;
+}
+
+.editor-box .label.success{
+  color:#15966d;
+  background:#e8f5e9;
+}
+
+.text-wrapper{
+  position:relative;
+  border-radius:18px;
+  overflow:hidden;
+  min-height:400px;
+}
+
+textarea{
+  width:100%;
+  min-height:400px;
+  resize:vertical;
+  border:0;
+  padding:20px;
+  outline:none;
+  background:transparent;
+  color:#20222b;
+  font:18px/1.65 inherit;
+  position:relative;
+  z-index:2;
+}
+
+.editor-box .highlight-overlay{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  pointer-events:none;
+  z-index:1;
+  padding:20px;
+  font:18px/1.65 inherit;
+  color:transparent;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  overflow:hidden;
+  border-radius:18px;
+}
+
+/* Подсветка ошибок */
+.highlight-error{
+  background:#ff000030;
+  border-bottom:2px wavy #ff0000;
+  border-radius:2px;
+}
+
+.highlight-repeat{
+  background:#1a73e830;
+  border-bottom:2px solid #1a73e8;
+  border-radius:2px;
+}
+
+.highlight-grammar{
+  background:#7c4dff30;
+  border-bottom:2px solid #7c4dff;
+  border-radius:2px;
+}
+
+.highlight-bureaucracy{
+  background:#ff8c0030;
+  border-bottom:2px solid #ff8c00;
+  border-radius:2px;
+}
+
+.highlight-complex{
+  background:#ff6f9130;
+  border-bottom:2px solid #ff6f91;
+  border-radius:2px;
+}
+
+.highlight-long-paragraph{
+  background:#ff8c0030;
+  border-left:4px solid #ff8c00;
+  border-radius:2px;
+}
+
+#fixedText{
+  background:#f8f9fe;
+  color:#20222b;
+  padding:20px;
+  min-height:400px;
+  font:18px/1.65 inherit;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  overflow-y:auto;
+  transition:all 0.3s;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:8px;
+  margin-top:15px;
+}
+
+.stat{
+  background:#f1f2f6;
+  padding:10px 14px;
+  border-radius:10px;
+  color:#686d78;
+  font-size:13px;
+  text-align:center;
+  transition:all 0.3s;
+}
+
+.stat b{
+  color:#20222b;
+  font-size:15px;
+  transition:all 0.3s;
+}
+
+.status{
+  margin-top:12px;
+  font-size:14px;
+  color:#777b86;
+  padding:8px 14px;
+  border-radius:10px;
+  background:#f8f8fb;
+  transition:all 0.3s;
+}
+
+.status.ok{
+  background:#e8f5e9;
+  color:#15966d;
+}
+
+.status.error{
+  background:#ffebee;
+  color:#d73d3d;
+}
+
+.status.warning{
+  background:#fff8e1;
+  color:#e6a700;
+}
+
+.results-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.badge{
+  min-width:32px;
+  height:32px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:#fff0f0;
+  color:#d73d3d;
+  font-weight:800;
+  font-size:15px;
+  transition:all 0.3s;
+}
+
+.badge.zero{
+  background:#e8f5e9;
+  color:#15966d;
+}
+
+.empty{
+  padding:35px;
+  text-align:center;
+  color:#777b86;
+}
+
+.success{
+  color:#15966d;
+  font-weight:800;
+}
+
+.issue{
+  padding:15px;
+  border:1px solid #ececf1;
+  border-radius:15px;
+  margin-top:10px;
+  background:#fafafe;
+  transition:all 0.2s;
+}
+
+.issue:hover{
+  border-color:#655cf5;
+  box-shadow:0 2px 12px #655cf515;
+}
+
+.issue-title{
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.issue-title .tag{
+  font-size:11px;
+  font-weight:600;
+  background:#655cf515;
+  color:#655cf5;
+  padding:2px 10px;
+  border-radius:20px;
+}
+
+.issue-text{
+  margin-top:8px;
+  color:#646874;
+}
+
+.wrong{
+  color:#d63e3e;
+  text-decoration:underline wavy #d63e3e;
+  font-weight:750;
+}
+
+.correct{
+  color:#15966d;
+  font-weight:750;
+}
+
+.fix{
+  margin-top:10px;
+  padding:8px 16px;
+  background:#f0efff;
+  color:#5148d8;
+  font-size:14px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  transition:all 0.15s;
+}
+
+.fix:hover{
+  background:#e0defa;
+}
+
+.suggestions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+
+.suggestions button{
+  padding:4px 12px;
+  border:1px solid #dedfe5;
+  border-radius:8px;
+  background:white;
+  font-size:14px;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+
+.suggestions button:hover{
+  border-color:#655cf5;
+  background:#f5f3ff;
+  transform:translateY(-1px);
+  box-shadow:0 2px 8px #655cf515;
+}
+
+/* =========================================================
+   ИСТОРИЯ ПРАВОК
+   ========================================================= */
+
+.history-box{
+  margin-top:15px;
+  padding:12px 16px;
+  border:1px solid #e7e7ec;
+  border-radius:18px;
+  background:#f8f9fc;
+  transition:all 0.3s;
+}
+
+.history-box.hidden{
+  display:none;
+}
+
+.history-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.history-header h3{
+  font-size:14px;
+  color:#777b86;
+  margin:0;
+}
+
+.history-items{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:4px 0;
+}
+
+.history-item{
+  flex-shrink:0;
+  padding:6px 14px;
+  border:1px solid #dedfe5;
+  border-radius:10px;
+  background:white;
+  font-size:12px;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.history-item:hover{
+  border-color:#655cf5;
+  background:#f5f3ff;
+}
+
+.history-item.active{
+  border-color:#655cf5;
+  background:#f0efff;
+}
+
+.history-item .time{
+  color:#999;
+  font-size:10px;
+}
+
+.history-item .preview{
+  max-width:150px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+@media(max-width:768px){
+  .editor-wrapper{
+    grid-template-columns:1fr;
+  }
+  
+  .history-items{
+    flex-wrap:wrap;
+  }
+}
+
+@media(max-width:600px){
+  .container{
+    width:calc(100% - 18px);
+    padding-top:20px;
+  }
+
+  .logo{
+    font-size:34px;
+  }
+
+  .card{
+    padding:15px;
+    border-radius:18px;
+  }
+
+  textarea{
+    min-height:250px;
+    font-size:16px;
+  }
+
+  .stats-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <div class="logo">
+    <span>✓</span>ТекстОК
+  </div>
+  <div class="header-controls">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Тёмная тема">🌙</button>
+  </div>
+</header>
+
+<div class="subtitle">
+  Проверка русского текста с Яндекс.Спеллер
+</div>
+
+
+<section class="card">
+
+  <div class="toolbar">
+    <button class="primary" onclick="checkText()">🔎 Проверить</button>
+    <button class="secondary" onclick="fixAll()">✨ Исправить всё</button>
+    <button class="light" onclick="demo()">Демо</button>
+    <button class="light" onclick="clearText()">Очистить</button>
+    <button class="danger" onclick="swapTexts()">⇄ Обменять</button>
+  </div>
+
+  <div class="editor-wrapper">
+
+    <!-- ЛЕВОЕ ОКНО — ИСХОДНЫЙ ТЕКСТ -->
+    <div class="editor-box">
+      <span class="label" id="sourceLabel">📝 Исходный</span>
+      <div class="text-wrapper">
+        <textarea id="editor" placeholder="Вставьте сюда русский текст..."></textarea>
+        <div id="highlightOverlay" class="highlight-overlay"></div>
+      </div>
+    </div>
+
+    <!-- ПРАВОЕ ОКНО — ИСПРАВЛЕННЫЙ ТЕКСТ -->
+    <div class="editor-box">
+      <span class="label success" id="fixedLabel">✅ Исправленный</span>
+      <div id="fixedText"></div>
+    </div>
+
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat">Слов: <b id="words">0</b></div>
+    <div class="stat">Символов: <b id="chars">0</b></div>
+    <div class="stat">Предложений: <b id="sentences">0</b></div>
+    <div class="stat">Абзацев: <b id="paragraphs">0</b></div>
+    <div class="stat">Ср. длина слова: <b id="avgWordLen">0</b></div>
+    <div class="stat">Ошибок: <b id="errors">0</b></div>
+    <div class="stat">Словарь: <b id="dictionaryStatus">загрузка...</b></div>
+  </div>
+
+  <div id="status" class="status">Загружаем словарь...</div>
+
+  <!-- ИСТОРИЯ ПРАВОК -->
+  <div id="historyBox" class="history-box hidden">
+    <div class="history-header">
+      <h3>📜 История правок</h3>
+      <button class="light" style="padding:4px 12px;font-size:12px;" onclick="clearHistory()">Очистить</button>
+    </div>
+    <div id="historyItems" class="history-items"></div>
+  </div>
+
+</section>
+
+
+<section class="card">
+
+  <div class="results-head">
+    <h2>Результаты</h2>
+    <div id="badge" class="badge">0</div>
+  </div>
+
+  <div id="results">
+    <div class="empty">Введите текст и нажмите «Проверить».</div>
+  </div>
+
+</section>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   НАСТРОЙКИ
+   ========================================================= */
+
+const DICTIONARY_FILE = "https://raw.githubusercontent.com/ffvy7phzfb-dot/texxtokk/main/100_000_russian_wordlist.txt";
+
+const editor = document.getElementById("editor");
+const fixedTextEl = document.getElementById("fixedText");
+const results = document.getElementById("results");
+const statusEl = document.getElementById("status");
+const highlightOverlay = document.getElementById("highlightOverlay");
+const historyBox = document.getElementById("historyBox");
+const historyItems = document.getElementById("historyItems");
+
+const wordsEl = document.getElementById("words");
+const charsEl = document.getElementById("chars");
+const sentencesEl = document.getElementById("sentences");
+const paragraphsEl = document.getElementById("paragraphs");
+const avgWordLenEl = document.getElementById("avgWordLen");
+const errorsEl = document.getElementById("errors");
+const badgeEl = document.getElementById("badge");
+const dictionaryStatus = document.getElementById("dictionaryStatus");
+
+
+/* =========================================================
+   ТЁМНАЯ ТЕМА
+   ========================================================= */
+
+let isDarkMode = localStorage.getItem('textok-theme') === 'dark';
+
+function toggleTheme(){
+  isDarkMode = !isDarkMode;
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  document.querySelector('.theme-toggle').textContent = isDarkMode ? '☀️' : '🌙';
+  localStorage.setItem('textok-theme', isDarkMode ? 'dark' : 'light');
+}
+
+if(isDarkMode){
+  document.body.classList.add('dark-mode');
+  document.querySelector('.theme-toggle').textContent = '☀️';
+}
+
+
+/* =========================================================
+   СЛОВАРЬ
+   ========================================================= */
+
+let dictionary = new Set();
+let dictionaryLoaded = false;
+
+
+const fallbackWords = `
+я ты он она оно мы вы они
+и а но или да нет
+это тот эта это эти
+как что где когда почему
+кто какой которая который которые
+быть есть был была были будет
+делать сделать сделал сделали
+сказать говорить говорил
+идти пойти ходить
+знать понимать думать
+хотеть мочь должен
+можно нельзя нужно
+человек люди время день год
+сегодня завтра вчера
+текст слово предложение
+русский язык программа компьютер
+сайт работа помощь
+привет спасибо пожалуйста
+хороший хороший хорошо
+проверка ошибка ошибка
+`.trim().split(/\s+/);
+
+
+/* =========================================================
+   ЗАГРУЗКА СЛОВАРЯ
+   ========================================================= */
+
+async function loadDictionary(){
+
+  dictionaryStatus.textContent = "загрузка...";
+
+  try{
+
+    const response = await fetch(DICTIONARY_FILE, { cache:"no-store" });
+
+    if(!response.ok) throw new Error("Словарь не найден");
+
+    const data = await response.text();
+    const lines = data.split(/\r?\n/);
+
+    let count = 0;
+    for(let line of lines){
+
+      line = line.trim().toLowerCase();
+      if(!line) continue;
+
+      const parts = line.split(/\t/);
+      let word = parts[0] || line;
+      word = word.trim();
+
+      if(/^[а-яё-]+$/i.test(word) && word.length >= 1){
+        dictionary.add(word);
+        count++;
+      }
+    }
+
+    if(count < 100){
+      throw new Error("Загружено слишком мало слов: " + count);
+    }
+
+    fallbackWords.forEach(word => dictionary.add(word.toLowerCase()));
+
+    dictionaryLoaded = true;
+    dictionaryStatus.textContent = count.toLocaleString("ru-RU");
+    statusEl.textContent = "✅ Словарь загружен (" + count.toLocaleString() + " слов)";
+    statusEl.className = "status ok";
+
+    console.log('Словарь загружен:', count, 'слов');
+
+  }catch(error){
+
+    console.log('Ошибка загрузки словаря:', error.message);
+    
+    fallbackWords.forEach(word => dictionary.add(word.toLowerCase()));
+
+    dictionaryLoaded = false;
+    dictionaryStatus.textContent = "резервный (" + dictionary.size + ")";
+    statusEl.textContent = "⚠️ Словарь не загружен. Используется встроенный словарь (" + dictionary.size + " слов).";
+    statusEl.className = "status warning";
+  }
+}
+
+
+/* =========================================================
+   КАНЦЕЛЯРИЗМЫ И СЛОЖНЫЕ КОНСТРУКЦИИ
+   ========================================================= */
+
+const bureaucracyWords = [
+  // Стандартные канцеляризмы
+  { word: 'в связи с', suggestion: 'из-за, из-за того что' },
+  { word: 'в целях', suggestion: 'для, чтобы' },
+  { word: 'принимая во внимание', suggestion: 'учитывая, зная, что' },
+  { word: 'вышеуказанный', suggestion: 'этот, названный' },
+  { word: 'нижеследующий', suggestion: 'следующий, далее' },
+  { word: 'должным образом', suggestion: 'как надо, правильно' },
+  { word: 'надлежащим образом', suggestion: 'как надо, правильно' },
+  { word: 'в соответствии с', suggestion: 'по, согласно' },
+  { word: 'на основании', suggestion: 'по, исходя из' },
+  { word: 'в процессе', suggestion: 'во время, в ходе' },
+  { word: 'в порядке', suggestion: 'для, ради' },
+  { word: 'ввиду того что', suggestion: 'из-за того что, так как' },
+  { word: 'по причине того что', suggestion: 'из-за того что, потому что' },
+  { word: 'вследствие чего', suggestion: 'поэтому, из-за этого' },
+  { word: 'в отношении', suggestion: 'о, про, касательно' },
+  { word: 'в части', suggestion: 'в деле, в вопросе' },
+  { word: 'по состоянию на', suggestion: 'на, по данным на' },
+  { word: 'в том числе', suggestion: 'включая, и' },
+  { word: 'среди которых', suggestion: 'из которых, включая' },
+  { word: 'в частности', suggestion: 'например, особенно' },
+  { word: 'имеет место', suggestion: 'есть, происходит, бывает' },
+  { word: 'является', suggestion: 'есть, это' },
+  { word: 'осуществлять', suggestion: 'делать, выполнять' },
+  { word: 'осуществление', suggestion: 'делание, выполнение' },
+  { word: 'обеспечивать', suggestion: 'давать, создавать' },
+  { word: 'обеспечение', suggestion: 'создание, поддержка' },
+  { word: 'использовать', suggestion: 'пользоваться, применять' },
+  { word: 'использование', suggestion: 'применение, пользование' },
+  { word: 'функционирование', suggestion: 'работа, действие' },
+  { word: 'реализация', suggestion: 'выполнение, воплощение' },
+  { word: 'реализовывать', suggestion: 'выполнять, воплощать' },
+  { word: 'мероприятие', suggestion: 'событие, дело' },
+  { word: 'проведение', suggestion: 'делание, выполнение' },
+  { word: 'проводить', suggestion: 'делать, выполнять, устраивать' },
+  { word: 'уведомлять', suggestion: 'сообщать, извещать' },
+  { word: 'уведомление', suggestion: 'сообщение, извещение' },
+  { word: 'распоряжение', suggestion: 'приказ, указание' },
+  { word: 'постановление', suggestion: 'решение, приказ' },
+  { word: 'регламент', suggestion: 'правила, порядок' },
+  { word: 'документация', suggestion: 'бумаги, документы' },
+  { word: 'документооборот', suggestion: 'обмен документами' },
+  { word: 'взаимодействие', suggestion: 'общение, работа вместе' },
+  { word: 'взаимодействовать', suggestion: 'общаться, работать вместе' },
+  { word: 'сотрудничество', suggestion: 'совместная работа' },
+  { word: 'сотрудничать', suggestion: 'работать вместе' },
+  { word: 'информировать', suggestion: 'сообщать, говорить' },
+  { word: 'информация', suggestion: 'сведения, данные' },
+  { word: 'контроль', suggestion: 'проверка, надзор' },
+  { word: 'контролировать', suggestion: 'проверять, следить' },
+  { word: 'анализ', suggestion: 'разбор, изучение' },
+  { word: 'анализировать', suggestion: 'разбирать, изучать' },
+];
+
+function findBureaucracy(text){
+
+  const issues = [];
+  
+  for(const item of bureaucracyWords){
+    const regex = new RegExp(item.word, 'gi');
+    let match;
+    while((match = regex.exec(text)) !== null){
+      issues.push({
+        type: "🏛️ Канцеляризм",
+        oldText: match[0],
+        suggestion: item.suggestion,
+        position: match.index,
+        className: 'highlight-bureaucracy',
+        fixType: 'bureaucracy'
+      });
+    }
+  }
+
+  // Сложные конструкции — цепочки существительных в родительном падеже
+  // Ищем 3+ существительных подряд в родительном падеже
+  const genitiveChain = /[А-Яа-яё]+\s+[А-Яа-яё]+\s+[А-Яа-яё]+(?:[А-Яа-яё]+)?/g;
+  let match;
+  while((match = genitiveChain.exec(text)) !== null){
+    // Простейшая проверка: ищем окончания родительного падежа
+    const words = match[0].split(/\s+/);
+    let genitiveCount = 0;
+    for(const w of words){
+      if(w.endsWith('а') || w.endsWith('я') || w.endsWith('ов') || w.endsWith('ей')){
+        genitiveCount++;
+      }
+    }
+    if(genitiveCount >= 3){
+      issues.push({
+        type: "🔗 Сложная конструкция",
+        oldText: match[0],
+        suggestion: "можно упростить, перестроить предложение",
+        position: match.index,
+        className: 'highlight-complex',
+        fixType: 'complex'
+      });
+    }
+  }
+
+  return issues;
+}
+
+
+/* =========================================================
+   ИСТОРИЯ ПРАВОК
+   ========================================================= */
+
+let history = JSON.parse(localStorage.getItem('textok-history') || '[]');
+let historyIndex = -1;
+
+function saveToHistory(text){
+  if(!text.trim()) return;
+  
+  // Удаляем все версии после текущей
+  if(historyIndex >= 0 && historyIndex < history.length - 1){
+    history = history.slice(0, historyIndex + 1);
+  }
+  
+  // Добавляем новую версию
+  history.push({
+    text: text,
+    time: new Date().toLocaleString(),
+    preview: text.slice(0, 50) + (text.length > 50 ? '...' : '')
+  });
+  
+  // Оставляем только 20 последних
+  if(history.length > 20){
+    history = history.slice(-20);
+  }
+  
+  historyIndex = history.length - 1;
+  localStorage.setItem('textok-history', JSON.stringify(history));
+  renderHistory();
+  historyBox.classList.remove('hidden');
+}
+
+function renderHistory(){
+  historyItems.innerHTML = '';
+  history.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'history-item' + (index === historyIndex ? ' active' : '');
+    div.innerHTML = `
+      <span class="time">${item.time}</span>
+      <span class="preview">${escapeHTML(item.preview)}</span>
+    `;
+    div.onclick = () => restoreHistory(index);
+    historyItems.appendChild(div);
+  });
+}
+
+function restoreHistory(index){
+  if(index >= 0 && index < history.length){
+    historyIndex = index;
+    editor.value = history[index].text;
+    checkText();
+    renderHistory();
+  }
+}
+
+function clearHistory(){
+  if(confirm('Очистить всю историю?')){
+    history = [];
+    historyIndex = -1;
+    localStorage.removeItem('textok-history');
+    historyBox.classList.add('hidden');
+  }
+}
+
+
+/* =========================================================
+   СТАТИСТИКА ТЕКСТА
+   ========================================================= */
+
+function getTextStats(text){
+
+  const words = text.match(/[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g) || [];
+  const wordCount = words.length;
+
+  const charCount = text.length;
+
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+  const sentenceCount = sentences.length || (text.trim() ? 1 : 0);
+
+  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+  const paragraphCount = paragraphs.length || (text.trim() ? 1 : 0);
+
+  const totalWordLength = words.reduce((sum, w) => sum + w.length, 0);
+  const avgWordLen = wordCount > 0 ? (totalWordLength / wordCount) : 0;
+
+  const longParagraphs = paragraphs.filter(p => p.replace(/\s/g, '').length > 600);
+
+  return {
+    wordCount,
+    charCount,
+    sentenceCount,
+    paragraphCount,
+    avgWordLen: Math.round(avgWordLen * 10) / 10,
+    longParagraphs,
+    longParagraphCount: longParagraphs.length
+  };
+}
+
+
+/* =========================================================
+   ПРОВЕРКА ГРАММАТИКИ (КОНТЕКСТ)
+   ========================================================= */
+
+function checkGrammar(text){
+
+  const issues = [];
+  
+  const heWords = ['он', 'мой', 'твой', 'наш', 'ваш', 'этот', 'тот', 'какой', 'такой'];
+  const sheWords = ['она', 'моя', 'твоя', 'наша', 'ваша', 'эта', 'та', 'какая', 'такая'];
+  
+  const words = text.match(/[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g) || [];
+  
+  for(let i = 0; i < words.length - 1; i++){
+    const current = words[i].toLowerCase();
+    const next = words[i+1].toLowerCase();
+    
+    if(heWords.includes(current) && next.endsWith('ла') && !next.endsWith('лся')){
+      const base = next.slice(0, -2);
+      issues.push({
+        type: "Грамматическая ошибка (род)",
+        oldText: words[i] + ' ' + words[i+1],
+        newText: words[i] + ' ' + base + 'л',
+        position: text.indexOf(words[i], 0),
+        suggestions: [words[i] + ' ' + base + 'л', words[i] + ' ' + base + 'лся'],
+        fixType: 'grammar'
+      });
+    }
+    
+    if(sheWords.includes(current) && next.endsWith('л') && !next.endsWith('ла') && !next.endsWith('лся')){
+      const base = next.slice(0, -1);
+      issues.push({
+        type: "Грамматическая ошибка (род)",
+        oldText: words[i] + ' ' + words[i+1],
+        newText: words[i] + ' ' + base + 'ла',
+        position: text.indexOf(words[i], 0),
+        suggestions: [words[i] + ' ' + base + 'ла'],
+        fixType: 'grammar'
+      });
+    }
+  }
+  
+  return issues;
+}
+
+
+/* =========================================================
+   ЛОКАЛЬНАЯ ПРОВЕРКА
+   ========================================================= */
+
+function getLocalIssues(text){
+
+  const issues = [];
+
+  let match;
+  const spaces = / {2,}/g;
+  while((match = spaces.exec(text)) !== null){
+    issues.push({
+      type: "Лишние пробелы",
+      oldText: match[0],
+      newText: " ",
+      position: match.index,
+      suggestions: [" "],
+      fixType: 'space'
+    });
+  }
+
+  const punctuation = / +([,.!?;:])/g;
+  while((match = punctuation.exec(text)) !== null){
+    issues.push({
+      type: "Пробел перед знаком",
+      oldText: match[0],
+      newText: match[1],
+      position: match.index,
+      suggestions: [match[1]],
+      fixType: 'punctuation'
+    });
+  }
+
+  const repeated = /\b([А-Яа-яЁё]+)\s+\1\b/giu;
+  while((match = repeated.exec(text)) !== null){
+    issues.push({
+      type: "Повтор слова",
+      oldText: match[0],
+      newText: match[1],
+      position: match.index,
+      suggestions: [match[1]],
+      fixType: 'repeat'
+    });
+  }
+
+  if(dictionaryLoaded && dictionary.size > 0){
+    const wordsRegex = /[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g;
+    while((match = wordsRegex.exec(text)) !== null){
+      const original = match[0];
+      const word = original.toLowerCase();
+
+      if(word.length < 4) continue;
+      if(dictionary.has(word)) continue;
+
+      const exists = issues.some(x => x.position === match.index && x.oldText === original);
+      if(exists) continue;
+
+      const suggestion = findSuggestion(word);
+      if(suggestion){
+        issues.push({
+          type: "Возможная опечатка",
+          oldText: original,
+          newText: preserveCase(original, suggestion),
+          position: match.index,
+          suggestions: [preserveCase(original, suggestion)],
+          fixType: 'spelling'
+        });
+      }
+    }
+  }
+
+  return issues;
+}
+
+
+/* =========================================================
+   ПОИСК БЛИЖАЙШЕГО СЛОВА
+   ========================================================= */
+
+function findSuggestion(word){
+
+  let best = null;
+  let bestDistance = Infinity;
+
+  for(const candidate of dictionary){
+
+    if(Math.abs(candidate.length - word.length) > 2) continue;
+    if(candidate[0] !== word[0] && candidate[0] !== word[0].toLowerCase()) continue;
+
+    const distance = levenshtein(word, candidate);
+
+    if(distance < bestDistance){
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+
+  let threshold = 1;
+  if(word.length >= 7) threshold = 2;
+  if(word.length >= 11) threshold = 3;
+
+  if(bestDistance <= threshold) return best;
+  return null;
+}
+
+
+/* =========================================================
+   LEVENSHTEIN
+   ========================================================= */
+
+function levenshtein(a,b){
+  if(a === b) return 0;
+  if(a.length === 0) return b.length;
+  if(b.length === 0) return a.length;
+
+  let previous = new Array(b.length + 1);
+  let current = new Array(b.length + 1);
+
+  for(let j=0;j<=b.length;j++) previous[j] = j;
+
+  for(let i=1;i<=a.length;i++){
+    current[0] = i;
+    for(let j=1;j<=b.length;j++){
+      const cost = a[i-1] === b[j-1] ? 0 : 1;
+      current[j] = Math.min(
+        current[j-1] + 1,
+        previous[j] + 1,
+        previous[j-1] + cost
+      );
+    }
+    [previous,current] = [current,previous];
+  }
+
+  return previous[b.length];
+}
+
+
+/* =========================================================
+   РЕГИСТР
+   ========================================================= */
+
+function preserveCase(original, replacement){
+  if(original.length && original[0] === original[0].toUpperCase()){
+    return replacement[0].toUpperCase() + replacement.slice(1);
+  }
+  return replacement;
+}
+
+
+/* =========================================================
+   УДАЛЕНИЕ ДУБЛИКАТОВ
+   ========================================================= */
+
+function removeDuplicates(issues){
+  return issues.filter((item,index,array) =>
+    index === array.findIndex(x =>
+      x.position === item.position &&
+      x.oldText === item.oldText
+    )
+  );
+}
+
+
+/* =========================================================
+   ОСНОВНАЯ ПРОВЕРКА
+   ========================================================= */
+
+let currentIssues = [];
+let currentRepeats = [];
+let currentGrammar = [];
+let currentBureaucracy = [];
+let isChecking = false;
+
+async function checkText(){
+
+  const text = editor.value;
+
+  if(!text.trim()){
+    currentIssues = [];
+    currentRepeats = [];
+    currentGrammar = [];
+    currentBureaucracy = [];
+    fixedTextEl.textContent = '';
+    renderResults();
+    updateStats();
+    updateHighlighting(text);
+    return;
+  }
+
+  if(isChecking) return;
+
+  isChecking = true;
+  statusEl.textContent = "⏳ Проверка...";
+  statusEl.className = "status warning";
+  document.querySelector('.primary').disabled = true;
+
+  try{
+
+    // 1. Яндекс.Спеллер
+    const response = await fetch('https://speller.yandex.net/services/spellservice.json/checkText', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'text=' + encodeURIComponent(text) + '&lang=ru&options=1'
+    });
+
+    if(!response.ok){
+      throw new Error('Яндекс.Спеллер недоступен');
+    }
+
+    const data = await response.json();
+
+    const yandexIssues = data.map(error => ({
+      type: "Яндекс.Спеллер",
+      oldText: error.word,
+      newText: error.s && error.s.length > 0 ? error.s[0] : error.word,
+      position: error.pos,
+      suggestions: error.s || [],
+      fixType: 'spelling'
+    }));
+
+    const localIssues = getLocalIssues(text);
+    const grammarIssues = checkGrammar(text);
+    const bureaucracyIssues = findBureaucracy(text);
+
+    currentIssues = [...yandexIssues, ...localIssues];
+    currentIssues.sort((a,b) => a.position - b.position);
+    currentIssues = removeDuplicates(currentIssues);
+
+    currentRepeats = findRepeats(text);
+    currentGrammar = grammarIssues;
+    currentBureaucracy = bureaucracyIssues;
+
+    updateFixedText(text);
+    renderResults();
+    updateStats();
+    updateHighlighting(text);
+
+    const totalErrors = currentIssues.length + currentRepeats.length + currentGrammar.length + currentBureaucracy.length;
+    statusEl.textContent = "✅ Проверка завершена. Найдено " + totalErrors + " ошибок.";
+    statusEl.className = totalErrors > 0 ? "status error" : "status ok";
+
+  }catch(error){
+
+    console.log('Ошибка Яндекс.Спеллер:', error);
+    statusEl.textContent = "⚠️ Яндекс.Спеллер недоступен. Используем локальную проверку.";
+    statusEl.className = "status warning";
+
+    currentIssues = getLocalIssues(text);
+    currentIssues.sort((a,b) => a.position - b.position);
+    currentIssues = removeDuplicates(currentIssues);
+
+    currentRepeats = findRepeats(text);
+    currentGrammar = checkGrammar(text);
+    currentBureaucracy = findBureaucracy(text);
+
+    updateFixedText(text);
+    renderResults();
+    updateStats();
+    updateHighlighting(text);
+
+  }finally{
+    isChecking = false;
+    document.querySelector('.primary').disabled = false;
+  }
+}
+
+
+/* =========================================================
+   ПОИСК ПОВТОРОВ
+   ========================================================= */
+
+function findRepeats(text){
+
+  const repeats = [];
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+
+  const words = text.match(/[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g) || [];
+
+  const wordFrequency = {};
+  for(const w of words){
+    const lower = w.toLowerCase();
+    wordFrequency[lower] = (wordFrequency[lower] || 0) + 1;
+  }
+
+  let globalPos = 0;
+  for(const sentence of sentences){
+    const sentenceWords = sentence.match(/[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g) || [];
+    const freqInSentence = {};
+
+    for(const w of sentenceWords){
+      const lower = w.toLowerCase();
+      freqInSentence[lower] = (freqInSentence[lower] || 0) + 1;
+    }
+
+    for(const w of sentenceWords){
+      const lower = w.toLowerCase();
+      if(freqInSentence[lower] >= 2){
+        const pos = text.indexOf(w, globalPos);
+        if(pos !== -1){
+          repeats.push({
+            word: w,
+            position: pos,
+            type: 'same_sentence'
+          });
+        }
+      }
+    }
+
+    globalPos += sentence.length;
+  }
+
+  for(const w of words){
+    const lower = w.toLowerCase();
+    if(wordFrequency[lower] > 3){
+      const pos = text.indexOf(w);
+      if(pos !== -1 && !repeats.some(r => r.position === pos && r.word === w)){
+        repeats.push({
+          word: w,
+          position: pos,
+          type: 'frequent'
+        });
+      }
+    }
+  }
+
+  return repeats;
+}
+
+
+/* =========================================================
+   ИСПРАВЛЕННЫЙ ТЕКСТ
+   ========================================================= */
+
+function updateFixedText(text){
+
+  let fixed = text;
+
+  const allFixes = [];
+
+  for(const issue of currentIssues){
+    allFixes.push({
+      position: issue.position,
+      oldText: issue.oldText,
+      newText: issue.newText
+    });
+  }
+
+  for(const issue of currentGrammar){
+    allFixes.push({
+      position: issue.position,
+      oldText: issue.oldText,
+      newText: issue.newText
+    });
+  }
+
+  allFixes.sort((a,b) => b.position - a.position);
+
+  for(const fix of allFixes){
+    fixed =
+      fixed.slice(0, fix.position) +
+      fix.newText +
+      fixed.slice(fix.position + fix.oldText.length);
+  }
+
+  fixedTextEl.textContent = fixed;
+
+  // Сохраняем в историю
+  saveToHistory(fixed);
+}
+
+
+/* =========================================================
+   ПОДСВЕТКА ТЕКСТА
+   ========================================================= */
+
+function updateHighlighting(text){
+
+  if(!text.trim()){
+    highlightOverlay.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+
+  const highlights = [];
+
+  // Ошибки — красным
+  for(const error of currentIssues){
+    if(error.position + error.oldText.length <= text.length){
+      highlights.push({
+        start: error.position,
+        end: error.position + error.oldText.length,
+        text: error.oldText,
+        className: 'highlight-error'
+      });
+    }
+  }
+
+  // Грамматика — фиолетовым
+  for(const error of currentGrammar){
+    if(error.position + error.oldText.length <= text.length){
+      highlights.push({
+        start: error.position,
+        end: error.position + error.oldText.length,
+        text: error.oldText,
+        className: 'highlight-grammar'
+      });
+    }
+  }
+
+  // Повторы — синим
+  for(const repeat of currentRepeats){
+    const overlaps = highlights.some(h =>
+      repeat.position >= h.start && repeat.position < h.end
+    );
+    if(!overlaps && repeat.position + repeat.word.length <= text.length){
+      highlights.push({
+        start: repeat.position,
+        end: repeat.position + repeat.word.length,
+        text: repeat.word,
+        className: 'highlight-repeat'
+      });
+    }
+  }
+
+  // Канцеляризмы — оранжевым
+  for(const item of currentBureaucracy){
+    if(item.position + item.oldText.length <= text.length){
+      const overlaps = highlights.some(h =>
+        item.position >= h.start && item.position < h.end
+      );
+      if(!overlaps){
+        highlights.push({
+          start: item.position,
+          end: item.position + item.oldText.length,
+          text: item.oldText,
+          className: item.className || 'highlight-bureaucracy'
+        });
+      }
+    }
+  }
+
+  // Длинные абзацы
+  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+  let currentPos = 0;
+  for(const p of paragraphs){
+    const cleanP = p.replace(/\s/g, '');
+    if(cleanP.length > 600){
+      const start = text.indexOf(p, currentPos);
+      const end = start + p.length;
+      if(start !== -1 && end <= text.length){
+        highlights.push({
+          start: start,
+          end: end,
+          text: p,
+          className: 'highlight-long-paragraph'
+        });
+      }
+    }
+    currentPos = text.indexOf(p, currentPos) + p.length;
+  }
+
+  highlights.sort((a,b) => a.start - b.start);
+
+  let lastIndex = 0;
+  for(const h of highlights){
+    if(h.start > lastIndex && h.start <= text.length){
+      html += escapeHTML(text.substring(lastIndex, Math.min(h.start, text.length)));
+    }
+    const end = Math.min(h.end, text.length);
+    if(h.start < text.length){
+      html += `<span class="${h.className}" title="${escapeHTML(h.text)}">${escapeHTML(text.substring(h.start, end))}</span>`;
+    }
+    lastIndex = end;
+  }
+
+  if(lastIndex < text.length){
+    html += escapeHTML(text.substring(lastIndex));
+  }
+
+  highlightOverlay.innerHTML = html;
+}
+
+
+/* =========================================================
+   СТАТИСТИКА
+   ========================================================= */
+
+function updateStats(){
+
+  const text = editor.value;
+  const stats = getTextStats(text);
+
+  wordsEl.textContent = stats.wordCount;
+  charsEl.textContent = stats.charCount;
+  sentencesEl.textContent = stats.sentenceCount;
+  paragraphsEl.textContent = stats.paragraphCount;
+  avgWordLenEl.textContent = stats.avgWordLen;
+  
+  const totalErrors = currentIssues.length + currentRepeats.length + currentGrammar.length + currentBureaucracy.length;
+  errorsEl.textContent = totalErrors;
+  badgeEl.textContent = totalErrors;
+
+  if(stats.longParagraphCount > 0){
+    statusEl.textContent = `⚠️ Найдено ${stats.longParagraphCount} абзацев длиннее 600 символов.`;
+    statusEl.className = "status warning";
+  }
+
+  badgeEl.className = totalErrors === 0 ? "badge zero" : "badge";
+}
+
+
+/* =========================================================
+   ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ
+   ========================================================= */
+
+function renderResults(){
+
+  const allIssues = [...currentIssues, ...currentGrammar, ...currentBureaucracy];
+
+  for(const repeat of currentRepeats){
+    allIssues.push({
+      type: "🔵 Повтор слова",
+      oldText: repeat.word,
+      newText: repeat.word + ' (повтор)',
+      position: repeat.position,
+      suggestions: [],
+      fixType: 'repeat'
+    });
+  }
+
+  allIssues.sort((a,b) => a.position - b.position);
+
+  if(!allIssues.length){
+    results.innerHTML = `
+      <div class="empty">
+        <div class="success">✓ Ошибок не найдено</div>
+        <div style="margin-top:8px">Текст выглядит хорошо.</div>
+      </div>
+    `;
+    return;
+  }
+
+  results.innerHTML = "";
+
+  allIssues.forEach((issue, index) => {
+
+    const item = document.createElement("div");
+    item.className = "issue";
+
+    let suggestionsHtml = "";
+    if(issue.suggestions && issue.suggestions.length > 1){
+      suggestionsHtml = `
+        <div class="suggestions">
+          ${issue.suggestions.slice(0,5).map(s =>
+            `<button onclick="applySuggestion(${index}, '${escapeHTML(s)}')">${escapeHTML(s)}</button>`
+          ).join('')}
+        </div>
+      `;
+    }
+
+    // Для канцеляризмов показываем подсказку для упрощения
+    let extraInfo = "";
+    if(issue.suggestion && issue.fixType === 'bureaucracy'){
+      extraInfo = `<div style="margin-top:6px;font-size:13px;color:#ff8c00;">💡 Можно упростить: ${escapeHTML(issue.suggestion)}</div>`;
+    }
+    if(issue.fixType === 'complex'){
+      extraInfo = `<div style="margin-top:6px;font-size:13px;color:#ff6f91;">💡 ${escapeHTML(issue.suggestion)}</div>`;
+    }
+
+    item.innerHTML = `
+      <div class="issue-title">
+        ${escapeHTML(issue.type)}
+        <span class="tag">#${index + 1}</span>
+      </div>
+      <div class="issue-text">
+        <span class="wrong">${escapeHTML(showSpaces(issue.oldText))}</span>
+        →
+        <span class="correct">${escapeHTML(showSpaces(issue.newText))}</span>
+      </div>
+      ${extraInfo}
+      ${suggestionsHtml}
+      ${issue.suggestions && issue.suggestions.length > 0 ? `<button class="fix" onclick="applyIssue(${index})">Исправить</button>` : ''}
+    `;
+
+    results.appendChild(item);
+  });
+}
+
+
+/* =========================================================
+   ПРИМЕНИТЬ ИСПРАВЛЕНИЕ
+   ========================================================= */
+
+function applyIssue(index){
+
+  const allIssues = [...currentIssues, ...currentGrammar, ...currentBureaucracy];
+
+  for(const repeat of currentRepeats){
+    allIssues.push({
+      type: "Повтор слова",
+      oldText: repeat.word,
+      newText: repeat.word + ' (повтор)',
+      position: repeat.position,
+      suggestions: [],
+      fixType: 'repeat'
+    });
+  }
+
+  allIssues.sort((a,b) => a.position - b.position);
+
+  const issue = allIssues[index];
+  if(!issue || !issue.suggestions || issue.suggestions.length === 0) return;
+
+  const text = editor.value;
+
+  editor.value =
+    text.slice(0, issue.position) +
+    issue.newText +
+    text.slice(issue.position + issue.oldText.length);
+
+  checkText();
+}
+
+function applySuggestion(index, suggestion){
+
+  const allIssues = [...currentIssues, ...currentGrammar, ...currentBureaucracy];
+
+  for(const repeat of currentRepeats){
+    allIssues.push({
+      type: "Повтор слова",
+      oldText: repeat.word,
+      newText: repeat.word + ' (повтор)',
+      position: repeat.position,
+      suggestions: [],
+      fixType: 'repeat'
+    });
+  }
+
+  allIssues.sort((a,b) => a.position - b.position);
+
+  const issue = allIssues[index];
+  if(!issue) return;
+
+  const text = editor.value;
+
+  editor.value =
+    text.slice(0, issue.position) +
+    suggestion +
+    text.slice(issue.position + issue.oldText.length);
+
+  checkText();
+}
+
+
+/* =========================================================
+   ИСПРАВИТЬ ВСЁ
+   ========================================================= */
+
+function fixAll(){
+
+  checkText();
+
+  const allIssues = [...currentIssues, ...currentGrammar, ...currentBureaucracy];
+
+  for(const repeat of currentRepeats){
+    allIssues.push({
+      type: "Повтор слова",
+      oldText: repeat.word,
+      newText: repeat.word + ' (повтор)',
+      position: repeat.position,
+      suggestions: [],
+      fixType: 'repeat'
+    });
+  }
+
+  allIssues.sort((a,b) => a.position - b.position);
+
+  const fixable = allIssues.filter(i => i.suggestions && i.suggestions.length > 0);
+  if(!fixable.length) return;
+
+  const sorted = [...fixable].sort((a,b) => b.position - a.position);
+  let text = editor.value;
+
+  for(const issue of sorted){
+    text =
+      text.slice(0, issue.position) +
+      issue.newText +
+      text.slice(issue.position + issue.oldText.length);
+  }
+
+  editor.value = text;
+  checkText();
+}
+
+
+/* =========================================================
+   ОБМЕНЯТЬ ТЕКСТЫ
+   ========================================================= */
+
+function swapTexts(){
+  const source = editor.value;
+  const fixed = fixedTextEl.textContent;
+  
+  if(fixed && fixed.trim()){
+    editor.value = fixed;
+    fixedTextEl.textContent = source;
+    checkText();
+  }
+}
+
+
+/* =========================================================
+   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   ========================================================= */
+
+function showSpaces(value){
+  return value.replace(/ /g, "␠").replace(/\t/g, "⇥");
+}
+
+function escapeHTML(value){
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   ОЧИСТИТЬ
+   ========================================================= */
+
+function clearText(){
+
+  editor.value = "";
+  fixedTextEl.textContent = "";
+  currentIssues = [];
+  currentRepeats = [];
+  currentGrammar = [];
+  currentBureaucracy = [];
+
+  results.innerHTML = `<div class="empty">Введите текст и нажмите «Проверить».</div>`;
+  updateStats();
+  updateHighlighting('');
+  statusEl.textContent = "Готово к проверке.";
+  statusEl.className = "status";
+}
+
+
+/* =========================================================
+   ДЕМО
+   ========================================================= */
+
+function demo(){
+
+  editor.value =
+`Превет!  Это мой тестовый текcт.
+
+В связи с вышеуказанным необходимо осуществить проведение мероприятий по улучшению качества обслуживания клиентов.
+
+Сигодня я  хотел зделать хороший сайт , но  пока незнаю какбудто он будет работать.
+
+Он пошла в магазин. Она пошёл домой.
+
+В целях обеспечения дальнейшего взаимодействия просим вас предоставить информацию.
+
+Спасибо  большое за помощь!`;
+
+  checkText();
+}
+
+
+/* =========================================================
+   АВТОПРОВЕРКА ПРИ ВВОДЕ
+   ========================================================= */
+
+let autoCheckTimeout;
+
+editor.addEventListener('input', function(){
+  clearTimeout(autoCheckTimeout);
+  autoCheckTimeout = setTimeout(() => {
+    if(this.value.trim().length > 10){
+      checkText();
+    } else {
+      updateStats();
+      updateHighlighting(this.value);
+      fixedTextEl.textContent = this.value;
+    }
+  }, 1500);
+});
+
+
+/* =========================================================
+   ЗАПУСК
+   ========================================================= */
+
+// Восстанавливаем историю
+renderHistory();
+if(history.length > 0){
+  historyBox.classList.remove('hidden');
+}
+
+updateStats();
+loadDictionary();
+
+</script>
+
+</body>
+</html>
