@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ТекстОК — проверка русского текста</title>
+
+<style>
+/* ... весь CSS такой же, как в прошлом коде ... */
+/* (вставьте сюда весь CSS из предыдущего сообщения) */
+</style>
+</head>
+<body>
+
+<!-- HTML такой же, как в прошлом коде -->
+
+<script>
+
+/* =========================================================
+   НАСТРОЙКИ
+   ========================================================= */
+
+// ⚠️ ПРОВЕРЬТЕ ЭТУ ССЫЛКУ ⚠️
+const DICTIONARY_FILE = "https://raw.githubusercontent.com/ffvy7phzfb-dot/texxtokk/main/100_000_russian_wordlist.txt";
+
+/* ... остальной код такой же, как в прошлом коде ... */
+
+/* =========================================================
+   ЗАГРУЗКА СЛОВАРЯ (ОБНОВЛЕННАЯ)
+   ========================================================= */
+
+async function loadDictionary(){
+
+  dictionaryStatus.textContent = "загрузка...";
+
+  try{
+
+    const response = await fetch(DICTIONARY_FILE, { cache:"no-store" });
+
+    if(!response.ok) throw new Error("Словарь не найден (ответ " + response.status + ")");
+
+    const data = await response.text();
+    const lines = data.split(/\r?\n/);
+
+    let count = 0;
+    for(let line of lines){
+
+      line = line.trim().toLowerCase();
+      if(!line) continue;
+
+      const parts = line.split(/\t/);
+      let word = parts[0] || line;
+      word = word.trim();
+
+      if(/^[а-яё-]+$/i.test(word) && word.length >= 1){
+        dictionary.add(word);
+        count++;
+      }
+    }
+
+    // Если загрузилось меньше 100 слов — считаем, что что-то пошло не так
+    if(count < 100){
+      throw new Error("Загружено слишком мало слов: " + count);
+    }
+
+    // Добавляем резервные слова
+    fallbackWords.forEach(word => dictionary.add(word.toLowerCase()));
+
+    dictionaryLoaded = true;
+    dictionaryStatus.textContent = count.toLocaleString("ru-RU");
+    statusEl.textContent = "✅ Словарь загружен (" + count.toLocaleString() + " слов)";
+    statusEl.className = "status ok";
+
+    console.log('Словарь загружен:', count, 'слов');
+
+  }catch(error){
+
+    console.log('❌ Ошибка загрузки словаря:', error.message);
+    
+    // Используем резервный словарь
+    fallbackWords.forEach(word => dictionary.add(word.toLowerCase()));
+
+    dictionaryLoaded = false;
+    dictionaryStatus.textContent = "резервный (" + dictionary.size + ")";
+    statusEl.textContent = "⚠️ Словарь не загружен. Используется встроенный словарь (" + dictionary.size + " слов). Проверьте ссылку: " + DICTIONARY_FILE;
+    statusEl.className = "status warning";
+  }
+}
+
+/* ... остальной код такой же ... */
+
+</script>
+</body>
+</html>
